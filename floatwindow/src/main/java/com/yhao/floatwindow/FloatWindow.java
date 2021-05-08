@@ -68,6 +68,8 @@ public class FloatWindow {
         int mMoveType = MoveType.slide;
         int mSlideLeftMargin;
         int mSlideRightMargin;
+        int mSlideTopMargin;
+        int mSlideBottomMargin;
         long mDuration = 300;
         TimeInterpolator mInterpolator;
         private String mTag = mDefaultTag;
@@ -157,7 +159,7 @@ public class FloatWindow {
         }
 
         public B setMoveType(@MoveType.MOVE_TYPE int moveType) {
-            return setMoveType(moveType, 0, 0);
+            return setMoveType(moveType, 0, 0,0,0);
         }
 
 
@@ -168,10 +170,12 @@ public class FloatWindow {
          * @param slideLeftMargin  贴边动画左边距，默认为 0
          * @param slideRightMargin 贴边动画右边距，默认为 0
          */
-        public B setMoveType(@MoveType.MOVE_TYPE int moveType, int slideLeftMargin, int slideRightMargin) {
+        public B setMoveType(@MoveType.MOVE_TYPE int moveType, int slideLeftMargin, int slideRightMargin,int slideTopMargin, int slideBottomMargin) {
             mMoveType = moveType;
             mSlideLeftMargin = slideLeftMargin;
             mSlideRightMargin = slideRightMargin;
+            mSlideTopMargin=slideTopMargin;
+            mSlideBottomMargin=slideBottomMargin;
             return this;
         }
 

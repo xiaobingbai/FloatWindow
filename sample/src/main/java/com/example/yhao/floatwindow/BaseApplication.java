@@ -38,13 +38,13 @@ public class BaseApplication extends Application {
                 .setWidth(Screen.width, 0.2f) //设置悬浮控件宽高
                 .setHeight(Screen.width, 0.2f)
                 .setX(Screen.width, 0.8f)
-                .setY(Screen.height, 0.3f)
-                .setMoveType(MoveType.slide,100,-100)
+                .setY(Screen.height, 0.5f)
+                .setMoveType(MoveType.slide,30,30,30,30)
                 .setMoveStyle(500, new BounceInterpolator())
                 .setFilter(true, A_Activity.class, C_Activity.class)
                 .setViewStateListener(mViewStateListener)
                 .setPermissionListener(mPermissionListener)
-                .setDesktopShow(true)
+                .setDesktopShow(false)
                 .build();
 
 

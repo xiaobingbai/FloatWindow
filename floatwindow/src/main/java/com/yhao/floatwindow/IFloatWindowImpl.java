@@ -8,6 +8,7 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -220,18 +221,24 @@ public class IFloatWindowImpl extends IFloatWindow {
                                 mClick = (Math.abs(upX - downX) > mSlop) || (Math.abs(upY - downY) > mSlop);
                                 switch (mB.mMoveType) {
                                     case MoveType.slide:
-                                        int startX = mFloatView.getX();
-                                        int endX = (startX * 2 + v.getWidth() > Util.getScreenWidth(mB.mApplicationContext)) ?
-                                                Util.getScreenWidth(mB.mApplicationContext) - v.getWidth() - mB.mSlideRightMargin :
-                                                mB.mSlideLeftMargin;
-                                        mAnimator = ObjectAnimator.ofInt(startX, endX);
+                                        int endX = (upX+v.getWidth())>Util.getScreenWidth(mB.mApplicationContext)?Util.getScreenWidth(mB.mApplicationContext)-v.getWidth()-mB.mSlideRightMargin: (int) (upX - lastX + mFloatView.getX());
+                                        int endY =(upY+v.getHeight())>Util.getScreenHeight(mB.mApplicationContext)?Util.getScreenHeight(mB.mApplicationContext)-v.getHeight()-mB.mSlideBottomMargin: (int)(upY-lastY+mFloatView.getY()) ;
+                                        if(endX<=0){
+                                            endX=mB.mSlideLeftMargin;
+                                        }
+                                        if(endY<=0){
+                                            endY=mB.mSlideTopMargin;
+                                        }
+                                        Point startPoint=new Point(lastX,lastY);
+                                        Point endPoint=new Point(endX,endY);
+                                        mAnimator = ObjectAnimator.ofObject(new PointEvaluator(),startPoint, endPoint);
                                         mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                                             @Override
                                             public void onAnimationUpdate(ValueAnimator animation) {
-                                                int x = (int) animation.getAnimatedValue();
-                                                mFloatView.updateX(x);
+                                                Point point = (Point) animation.getAnimatedValue();
+                                                mFloatView.updateXY((int)point.getX(),(int)point.getY());
                                                 if (mB.mViewStateListener != null) {
-                                                    mB.mViewStateListener.onPositionUpdate(x, (int) upY);
+                                                    mB.mViewStateListener.onPositionUpdate((int)point.getX(),(int) point.getY());
                                                 }
                                             }
                                         });
@@ -254,7 +261,32 @@ public class IFloatWindowImpl extends IFloatWindow {
                                         });
                                         startAnimator();
                                         break;
-                                    default:
+                                    default:{
+                                        changeX = event.getRawX() - lastX;
+                                        changeY = event.getRawY() - lastY;
+                                        newX = (int) (mFloatView.getX() + changeX);
+                                        Log.d("ACTION_MOVE-x",newX+"   ---   " +Util.getScreenWidth(mB.mApplicationContext));
+                                        if(newX<0){
+                                            newX=50;
+                                        }
+                                        Log.d("ACTION_MOVE-y",newY+"   ---   " +Util.getScreenHeight(mB.mApplicationContext));
+                                        if(event.getRawX()+v.getWidth()>Util.getScreenWidth(mB.mApplicationContext)){
+                                            newX= Util.getScreenWidth(mB.mApplicationContext)-v.getWidth();
+                                        }
+                                        newY = (int) (mFloatView.getY() + changeY);
+                                        if(newY<0){
+                                            newY=50;
+                                        }
+                                        if(newY+v.getHeight()>Util.getScreenHeight(mB.mApplicationContext)){
+                                            newY=Util.getScreenHeight(mB.mApplicationContext)-v.getHeight();
+                                        }
+                                        mFloatView.updateXY(newX, newY);
+                                        if (mB.mViewStateListener != null) {
+                                            mB.mViewStateListener.onPositionUpdate(newX, newY);
+                                        }
+                                       }
+                                       lastX = event.getRawX();
+                                       lastY = event.getRawY();
                                         break;
                                 }
                                 break;
